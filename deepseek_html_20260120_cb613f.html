@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Varianza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a3c7f);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #1a2a6c, #2a3c7f);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+        }
+        
+        @media (min-width: 768px) {
+            .content {
+                flex-direction: row;
+                gap: 30px;
+            }
+        }
+        
+        .input-section, .results-section {
+            flex: 1;
+        }
+        
+        .section-title {
+            color: #1a2a6c;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #2a3c7f;
+        }
+        
+        .formula-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #2a3c7f;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #1a2a6c;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .formula-desc {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+        }
+        
+        .input-container {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            border-color: #2a3c7f;
+            outline: none;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .calculate-btn {
+            background-color: #2a3c7f;
+            color: white;
+        }
+        
+        .calculate-btn:hover {
+            background-color: #1a2a6c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 60, 127, 0.3);
+        }
+        
+        .clear-btn {
+            background-color: #f1f3f9;
+            color: #2a3c7f;
+            border: 2px solid #ddd;
+        }
+        
+        .clear-btn:hover {
+            background-color: #e4e7f1;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 5px solid #2a3c7f;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2a3c7f;
+            margin: 10px 0;
+        }
+        
+        .result-formula {
+            font-size: 14px;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            margin-top: 5px;
+        }
+        
+        .data-points {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .data-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        
+        .data-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .data-point {
+            background-color: #e4e7f1;
+            color: #2a3c7f;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .info-box {
+            background-color: #e8f4ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 25px;
+            border-left: 5px solid #2a3c7f;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            color: #1a2a6c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-text {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffeaea;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Calculadora de Varianza</h1>
+            <p class="subtitle">Calcula la varianza muestral y poblacional de un conjunto de datos</p>
+        </header>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="formula-section">
+                    <div class="formula">s² = Σ(xᵢ - x̄)² / (n - 1)</div>
+                    <div class="formula-desc">Fórmula de varianza muestral (s²)</div>
+                    <div class="formula" style="margin-top: 15px;">σ² = Σ(xᵢ - μ)² / N</div>
+                    <div class="formula-desc">Fórmula de varianza poblacional (σ²)</div>
+                </div>
+                
+                <h2 class="section-title"><i class="fas fa-edit"></i> Ingreso de Datos</h2>
+                
+                <div class="input-container">
+                    <label for="dataInput"><i class="fas fa-list-ol"></i> Ingresa los datos (separados por comas, espacios o saltos de línea):</label>
+                    <textarea id="dataInput" placeholder="Ejemplo: 12, 15, 18, 22, 25, 30, 35, 40, 42, 50">12, 15, 18, 22, 25, 30, 35, 40, 42, 50</textarea>
+                </div>
+                
+                <div id="errorMessage" class="error"></div>
+                
+                <div class="buttons">
+                    <button id="calculateBtn" class="calculate-btn">
+                        <i class="fas fa-calculator"></i> Calcular Varianza
+                    </button>
+                    <button id="clearBtn" class="clear-btn">
+                        <i class="fas fa-broom"></i> Limpiar Datos
+                    </button>
+                </div>
+                
+                <div class="info-box">
+                    <div class="info-title"><i class="fas fa-info-circle"></i> Información</div>
+                    <div class="info-text">
+                        <p><strong>Varianza muestral (s²):</strong> Se utiliza cuando los datos representan una muestra de una población más grande. El divisor es (n-1).</p>
+                        <p><strong>Varianza poblacional (σ²):</strong> Se utiliza cuando los datos representan toda la población. El divisor es N.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Resultados</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title"><i class="fas fa-users"></i> Datos Estadísticos</div>
+                        <div class="result-value" id="dataCount">10</div>
+                        <div>Cantidad de datos</div>
+                        <div class="result-value" id="meanValue">27.90</div>
+                        <div>Media (promedio)</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title"><i class="fas fa-chart-bar"></i> Varianza Muestral</div>
+                        <div class="result-value" id="sampleVariance">147.43</div>
+                        <div class="result-formula">s² = Σ(xᵢ - x̄)² / (n-1)</div>
+                        <div>Desviación estándar: <span id="sampleStdDev">12.14</span></div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title"><i class="fas fa-globe"></i> Varianza Poblacional</div>
+                        <div class="result-value" id="populationVariance">132.69</div>
+                        <div class="result-formula">σ² = Σ(xᵢ - μ)² / N</div>
+                        <div>Desviación estándar: <span id="populationStdDev">11.52</span></div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title"><i class="fas fa-sort-numeric-down"></i> Rango y Suma</div>
+                        <div class="result-value" id="dataRange">38</div>
+                        <div>Rango (máx - mín)</div>
+                        <div class="result-value" id="dataSum">279</div>
+                        <div>Suma total</div>
+                    </div>
+                </div>
+                
+                <div class="data-points">
+                    <div class="data-title"><i class="fas fa-database"></i> Datos Ingresados</div>
+                    <div class="data-list" id="dataPoints">
+                        <!-- Los puntos de datos se generan aquí dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <div class="info-title"><i class="fas fa-lightbulb"></i> Interpretación</div>
+                    <div class="info-text">
+                        <p><strong>Varianza más alta:</strong> Indica que los datos están más dispersos alrededor de la media.</p>
+                        <p><strong>Varianza más baja:</strong> Indica que los datos están más agrupados cerca de la media.</p>
+                        <p>La varianza muestral suele ser mayor que la poblacional porque usa (n-1) en lugar de N como divisor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Calculadora de Varianza &copy; 2023 | Todos los cálculos se realizan en tiempo real</p>
+        </footer>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const dataInput = document.getElementById('dataInput');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Elementos de resultados
+        const dataCount = document.getElementById('dataCount');
+        const meanValue = document.getElementById('meanValue');
+        const sampleVariance = document.getElementById('sampleVariance');
+        const populationVariance = document.getElementById('populationVariance');
+        const sampleStdDev = document.getElementById('sampleStdDev');
+        const populationStdDev = document.getElementById('populationStdDev');
+        const dataRange = document.getElementById('dataRange');
+        const dataSum = document.getElementById('dataSum');
+        const dataPoints = document.getElementById('dataPoints');
+        
+        // Función para parsear los datos ingresados
+        function parseData(input) {
+            // Reemplazar saltos de línea por comas y separar por comas
+            const cleanedInput = input.replace(/\n/g, ',').replace(/\s+/g, ',');
+            const items = cleanedInput.split(',');
+            
+            // Filtrar elementos vacíos y convertir a números
+            const numbers = items
+                .filter(item => item.trim() !== '')
+                .map(item => parseFloat(item))
+                .filter(num => !isNaN(num));
+                
+            return numbers;
+        }
+        
+        // Función para calcular la media
+        function calculateMean(data) {
+            const sum = data.reduce((acc, val) => acc + val, 0);
+            return sum / data.length;
+        }
+        
+        // Función para calcular la varianza muestral
+        function calculateSampleVariance(data) {
+            const mean = calculateMean(data);
+            const squaredDifferences = data.map(val => Math.pow(val - mean, 2));
+            const sumSquaredDiff = squaredDifferences.reduce((acc, val) => acc + val, 0);
+            
+            // Varianza muestral: dividir por n-1
+            return sumSquaredDiff / (data.length - 1);
+        }
+        
+        // Función para calcular la varianza poblacional
+        function calculatePopulationVariance(data) {
+            const mean = calculateMean(data);
+            const squaredDifferences = data.map(val => Math.pow(val - mean, 2));
+            const sumSquaredDiff = squaredDifferences.reduce((acc, val) => acc + val, 0);
+            
+            // Varianza poblacional: dividir por N
+            return sumSquaredDiff / data.length;
+        }
+        
+        // Función para calcular la desviación estándar (raíz cuadrada de la varianza)
+        function calculateStandardDeviation(variance) {
+            return Math.sqrt(variance);
+        }
+        
+        // Función para formatear números con decimales controlados
+        function formatNumber(num) {
+            // Mostrar más decimales para números muy pequeños
+            if (Math.abs(num) < 0.0001) {
+                return num.toExponential(4);
+            }
+            
+            // Para números con muchos decimales, limitar a 4 decimales
+            if (num.toString().includes('.') && num.toString().split('.')[1].length > 4) {
+                return num.toFixed(4);
+            }
+            
+            return num;
+        }
+        
+        // Función para mostrar los datos como puntos visuales
+        function displayDataPoints(data) {
+            dataPoints.innerHTML = '';
+            
+            data.forEach((value, index) => {
+                const pointElement = document.createElement('div');
+                pointElement.className = 'data-point';
+                pointElement.textContent = value;
+                pointElement.title = `Dato ${index + 1}: ${value}`;
+                dataPoints.appendChild(pointElement);
+            });
+        }
+        
+        // Función para calcular y mostrar todos los resultados
+        function calculateAndDisplay() {
+            // Ocultar mensaje de error previo
+            errorMessage.classList.remove('show');
+            
+            // Obtener y parsear datos
+            const input = dataInput.value.trim();
+            const data = parseData(input);
+            
+            // Validar datos
+            if (data.length === 0) {
+                errorMessage.textContent = 'Por favor, ingresa al menos un número válido.';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            if (data.length < 2) {
+                errorMessage.textContent = 'Se necesitan al menos 2 valores para calcular la varianza.';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            // Calcular resultados
+            const mean = calculateMean(data);
+            const sampleVar = calculateSampleVariance(data);
+            const populationVar = calculatePopulationVariance(data);
+            const sampleStd = calculateStandardDeviation(sampleVar);
+            const populationStd = calculateStandardDeviation(populationVar);
+            
+            // Calcular rango y suma
+            const sortedData = [...data].sort((a, b) => a - b);
+            const range = sortedData[sortedData.length - 1] - sortedData[0];
+            const sum = data.reduce((acc, val) => acc + val, 0);
+            
+            // Actualizar la interfaz con los resultados formateados
+            dataCount.textContent = data.length;
+            meanValue.textContent = formatNumber(mean);
+            sampleVariance.textContent = formatNumber(sampleVar);
+            populationVariance.textContent = formatNumber(populationVar);
+            sampleStdDev.textContent = formatNumber(sampleStd);
+            populationStdDev.textContent = formatNumber(populationStd);
+            dataRange.textContent = formatNumber(range);
+            dataSum.textContent = formatNumber(sum);
+            
+            // Mostrar los puntos de datos
+            displayDataPoints(data);
+        }
+        
+        // Función para limpiar los datos y resultados
+        function clearData() {
+            dataInput.value = '';
+            errorMessage.classList.remove('show');
+            
+            // Restablecer valores por defecto
+            dataCount.textContent = '0';
+            meanValue.textContent = '0';
+            sampleVariance.textContent = '0';
+            populationVariance.textContent = '0';
+            sampleStdDev.textContent = '0';
+            populationStdDev.textContent = '0';
+            dataRange.textContent = '0';
+            dataSum.textContent = '0';
+            dataPoints.innerHTML = '';
+        }
+        
+        // Función para inicializar con datos de ejemplo
+        function initExample() {
+            // Ya tenemos datos de ejemplo en el textarea por defecto
+            calculateAndDisplay();
+        }
+        
+        // Event Listeners
+        calculateBtn.addEventListener('click', calculateAndDisplay);
+        clearBtn.addEventListener('click', clearData);
+        
+        // También calcular cuando se presiona Enter en el textarea (Ctrl+Enter o Cmd+Enter)
+        dataInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                calculateAndDisplay();
+            }
+        });
+        
+        // Calcular automáticamente al cambiar los datos (con un pequeño retraso para evitar cálculos continuos)
+        let typingTimer;
+        dataInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(calculateAndDisplay, 800);
+        });
+        
+        // Inicializar con el ejemplo al cargar la página
+        document.addEventListener('DOMContentLoaded', initExample);
+    </script>
+</body>
+</html>
